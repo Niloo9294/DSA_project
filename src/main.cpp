@@ -35,7 +35,11 @@ void hospitalize(std::queue<patient> patients, const int& number_of_beds)
 	int alive = 0, dead = 0;
 	float average_wait_time;
 	// stores times at which each bed is free
-	int beds[number_of_beds] {0};
+	int beds[number_of_beds];
+	for(int i = 0; i < number_of_beds; i++)
+	{
+		beds[i] = 0;
+	}
 	bool served;
 	while (!patients.empty())
 	{
