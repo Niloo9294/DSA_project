@@ -16,8 +16,8 @@ struct patient
 {
 	int number;
 	int arrival, hospitalization, left, serve_time; // times - in minutes
-	bool served_at_arrival = false;
-	bool alive = true;
+	bool served_at_arrival = false; // turns to true if patient gets a bed as soon as they arrive
+	bool alive = true; // true until patient dies
 } temp;
 
 // first come, first served (FCFS) scenario
@@ -213,7 +213,7 @@ int main()
 	cout << "enter number of patients --> ";
 	cin >> number_of_patients;
 	patient patients[number_of_patients];
-	cout << "enter patients' information:" << ANSI_COLOR_YELLOW " <number> <arrival> <hospitalization> <left>\n" ANSI_COLOR_RESET;
+	cout << "enter patients' information:" << ANSI_COLOR_YELLOW " <number> <arrival time> <hospitalization time> <time left before death>\n" ANSI_COLOR_RESET;
 	// storing patients in an array
 	for (int i = 0; i < number_of_patients; ++i)
 	{
@@ -231,6 +231,5 @@ int main()
 	cout << ANSI_COLOR_YELLOW "priority scheduling scenario:\n" ANSI_COLOR_RESET;
 	patients_in_queue = PS(patients, number_of_patients, beds);
 	hospitalize(patients_in_queue, beds);
-	
 	return EXIT_SUCCESS;
 }
