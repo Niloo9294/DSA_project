@@ -213,7 +213,7 @@ int main()
 	cout << "enter number of patients --> ";
 	cin >> number_of_patients;
 	patient patients[number_of_patients];
-	cout << "enter patients' information:" << ANSI_COLOR_YELLOW " <number> <arrival time> <hospitalization time> <time left before death>\n" ANSI_COLOR_RESET;
+	cout << "enter patients' information:" << ANSI_COLOR_YELLOW " <number> <arrival time> <hospitalization duration> <time left before death>\n" ANSI_COLOR_RESET;
 	// storing patients in an array
 	for (int i = 0; i < number_of_patients; ++i)
 	{
