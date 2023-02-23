@@ -7,6 +7,7 @@ struct patient
 {
 	int number;
 	int arrival, hospitalization, left, serve_time; // times - in minutes
+	bool served_at_arrival = false;
 	bool alive = true;
 } temp;
 
@@ -31,14 +32,27 @@ std::queue<patient> FCFS(patient* const patients, const int& number_of_patients)
 // end of FCFS scenario
 
 // shortest job first (SJF) scenario
-std::queue<patient> SJF(patient* const patients, const int& number_of_patients)
+std::queue<patient> SJF(patient* const patients, const int& number_of_patients, const int& number_of_beds)
 {
 	// stores last patient's hospitalization duration
 	int hos_time;
 	// true if two elements were swapped (for better performance)
 	bool swapped = true;
-	// used in swapping process
-	patient temp;
+	int beds[number_of_beds];
+	for (int i = 0; i < number_of_beds; ++i)
+	{
+		beds[i] = 0;
+	}
+	for (int i = 0; i < number_of_patients; ++i)
+	{
+		for (int j = 0; j < number_of_beds; ++j)
+			if (beds[j] <= patients[i].arrival)
+			{
+				beds[j] += patients[i].hospitalization;
+				patients[i].served_at_arrival = true;
+				break;
+			}
+	}
 	// bubble sort
 	for (int i = 0; i < number_of_patients - 1 && swapped; ++i)
 	{
@@ -46,7 +60,9 @@ std::queue<patient> SJF(patient* const patients, const int& number_of_patients)
 		swapped = false;
 		for (int j = 0; j < number_of_patients - i - 1; ++j)
 		{
-			if ((patients[j].arrival == patients[j + 1].arrival || (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time)) && patients[j].hospitalization > patients[j + 1].hospitalization)
+			if ((patients[j].arrival == patients[j + 1].arrival || (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time))
+			   && patients[j].hospitalization > patients[j + 1].hospitalization
+			   && !(patients[j].arrival != patients[j + 1].arrival && patients[j].served_at_arrival))
 			{
 				// swapping process
 				temp = patients[j];
@@ -69,11 +85,25 @@ std::queue<patient> SJF(patient* const patients, const int& number_of_patients)
 // end of FJS scenario
 
 // priority scheduling (PS) scenario
-std::queue<patient> PS(patient* const patients, const int& number_of_patients)
+std::queue<patient> PS(patient* const patients, const int& number_of_patients, const int& number_of_beds)
 {
 	int hos_time;
 	bool swapped = true;
-	patient temp;
+	int beds[number_of_beds];
+	for (int i = 0; i < number_of_beds; ++i)
+	{
+		beds[i] = 0;
+	}
+	for (int i = 0; i < number_of_patients; ++i)
+	{
+		for (int j = 0; j < number_of_beds; ++j)
+			if (beds[j] <= patients[i].arrival)
+			{
+				beds[j] += patients[i].hospitalization;
+				patients[i].served_at_arrival = true;
+				break;
+			}
+	}
 	for (int i = 0; i < number_of_patients - 1 && swapped; ++i)
 	{
 		hos_time = 0;
@@ -81,7 +111,9 @@ std::queue<patient> PS(patient* const patients, const int& number_of_patients)
 		for (int j = 0; j < number_of_patients - i - 1; ++j)
 		{
 			// swapping condition changes compared to SJF
-			if ((patients[j].arrival == patients[j + 1].arrival || (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time)) && patients[j].left > patients[j + 1].left)
+			if ((patients[j].arrival == patients[j + 1].arrival || (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time))
+			   && patients[j].left > patients[j + 1].left
+			   && !(patients[j].arrival != patients[j + 1].arrival && patients[j].served_at_arrival))
 			{
 				temp = patients[j];
 				patients[j] = patients[j + 1];
@@ -133,7 +165,8 @@ void hospitalize(std::queue<patient> patients, const int& number_of_beds)
 				if (beds[i] <= time)
 				{
 					// printing entry and exit times
-					std::cout << "patient " << temp.number << " entered bed " << i + 1 << " at " << time << " and left at " << time + temp.hospitalization<< '\n';
+					std::cout << "patient " << temp.number << " entered bed " << i + 1 << " at " << time
+					          << " and left at " << time + temp.hospitalization<< '\n';
 					// updating bed's availability time
 					beds[i] = beds[i] += temp.hospitalization;
 					served = true;
@@ -157,7 +190,8 @@ void hospitalize(std::queue<patient> patients, const int& number_of_beds)
 		}
 	}
 	// printing average wait time and the number of live and dead people
-	std::cout << "\nfinal results:\nlive patients: " << alive << "\ndead patients: " << dead << std::fixed << std::setprecision(2) << "\naverage wait time: " << average_wait_time / number_of_patients << '\n';
+	std::cout << "\nfinal results:\nlive patients: " << alive << "\ndead patients: " << dead
+	          << std::fixed << std::setprecision(2) << "\naverage wait time: " << average_wait_time / number_of_patients << '\n';
 }
 
 int main()
@@ -181,11 +215,11 @@ int main()
 	hospitalize(patients_in_queue, beds);
 	std::cout << "---------------------------------------------\n";
 	std::cout << "SJF scenario:\n";
-	patients_in_queue = SJF(patients, number_of_patients);
+	patients_in_queue = SJF(patients, number_of_patients, beds);
 	hospitalize(patients_in_queue, beds);
 	std::cout << "---------------------------------------------\n";
 	std::cout << "priority scheduling scenario:\n";
-	patients_in_queue = PS(patients, number_of_patients);
+	patients_in_queue = PS(patients, number_of_patients, beds);
 	hospitalize(patients_in_queue, beds);
 	return EXIT_SUCCESS;
 }
