@@ -1,7 +1,16 @@
-#include <iostream> // std::cout, std::cin
-#include <queue> // std::queue
-#include <algorithm> // std::sort()
-#include <iomanip> // std::setprecision()
+#include <iostream> // cout, cin
+#include <queue> // queue
+#include <algorithm> // sort()
+#include <iomanip> // setprecision()
+
+using namespace std;
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
 struct patient
 {
@@ -17,12 +26,12 @@ const bool FCFScompare(const patient& first, const patient& second)
 	return first.arrival < second.arrival;
 }
 
-std::queue<patient> FCFS(patient* const patients, const int& number_of_patients)
+queue<patient> FCFS(patient* const patients, const int& number_of_patients)
 {
 	// sorting based on arrival times
-	std::sort(patients, patients + number_of_patients, FCFScompare);
+	sort(patients, patients + number_of_patients, FCFScompare);
 	// placing in queue
-	std::queue<patient> patients_in_queue;
+	queue<patient> patients_in_queue;
 	for(int i = 0; i < number_of_patients; ++i)
 	{
 		patients_in_queue.push(patients[i]);
@@ -32,7 +41,7 @@ std::queue<patient> FCFS(patient* const patients, const int& number_of_patients)
 // end of FCFS scenario
 
 // shortest job first (SJF) scenario
-std::queue<patient> SJF(patient* const patients, const int& number_of_patients, const int& number_of_beds)
+queue<patient> SJF(patient* const patients, const int& number_of_patients, const int& number_of_beds)
 {
 	// stores last patient's hospitalization duration
 	int hos_time;
@@ -61,7 +70,6 @@ std::queue<patient> SJF(patient* const patients, const int& number_of_patients, 
 		swapped = false;
 		for (int j = 0; j < number_of_patients - i - 1; ++j)
 		{
-			
 			// lower priority patient was served at
 			if (!(patients[j].arrival != patients[j + 1].arrival && patients[j].served_at_arrival)
 			   && (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time) // two patients are waiting for an empty bed
@@ -77,7 +85,7 @@ std::queue<patient> SJF(patient* const patients, const int& number_of_patients, 
 			hos_time = patients[j].arrival + patients[j].hospitalization;
 		}
 	}
-	std::queue<patient> patients_in_queue;
+	queue<patient> patients_in_queue;
 	for(int i = 0; i < number_of_patients; ++i)
 	{
 		patients_in_queue.push(patients[i]);
@@ -85,10 +93,10 @@ std::queue<patient> SJF(patient* const patients, const int& number_of_patients, 
 	return patients_in_queue;
 
 }
-// end of FJS scenario
+// end of SJF scenario
 
 // priority scheduling (PS) scenario
-std::queue<patient> PS(patient* const patients, const int& number_of_patients, const int& number_of_beds)
+queue<patient> PS(patient* const patients, const int& number_of_patients, const int& number_of_beds)
 {
 	int hos_time;
 	bool swapped = true;
@@ -125,7 +133,7 @@ std::queue<patient> PS(patient* const patients, const int& number_of_patients, c
 			hos_time = patients[j].arrival + patients[j].hospitalization;
 		}
 	}
-	std::queue<patient> patients_in_queue;
+	queue<patient> patients_in_queue;
 	for(int i = 0; i < number_of_patients; ++i)
 	{
 		patients_in_queue.push(patients[i]);
@@ -136,7 +144,7 @@ std::queue<patient> PS(patient* const patients, const int& number_of_patients, c
 // end of PS scenario
 
 // serves patients and prints results
-void hospitalize(std::queue<patient> patients, const int& number_of_beds)
+void hospitalize(queue<patient> patients, const int& number_of_beds)
 {
 	int number_of_patients = patients.size();
 	// keeps track of time (in minutes)
@@ -167,8 +175,8 @@ void hospitalize(std::queue<patient> patients, const int& number_of_beds)
 				if (beds[i] <= time)
 				{
 					// printing entry and exit times
-					std::cout << "patient " << temp.number << " entered bed " << i + 1 << " at " << time
-					          << " and left at " << time + temp.hospitalization<< '\n';
+					cout << ANSI_COLOR_BLUE "patient " << temp.number << " entered bed " << i + 1 << " at " << time
+					          << " and left at " << time + temp.hospitalization << '\n' << ANSI_COLOR_RESET;
 					// updating bed's availability time
 					beds[i] = beds[i] += temp.hospitalization;
 					served = true;
@@ -186,42 +194,43 @@ void hospitalize(std::queue<patient> patients, const int& number_of_beds)
 			if (time > temp.arrival + temp.left)
 			{
 				temp.alive = false;
-				std::cout << "patient " << temp.number << " died at " << time << '\n';
+				cout << "patient " << temp.number << " died at " << time << '\n';
 				++dead;
 			}
 		}
 	}
 	// printing average wait time and the number of live and dead people
-	std::cout << "\nfinal results:\nlive patients: " << alive << "\ndead patients: " << dead
-	          << std::fixed << std::setprecision(2) << "\naverage wait time: " << average_wait_time / number_of_patients << '\n';
+	cout << ANSI_COLOR_MAGENTA "\n---final results---\n" ANSI_COLOR_RESET << "live patients: " << ANSI_COLOR_GREEN << alive << ANSI_COLOR_RESET "\ndead patients: " <<  ANSI_COLOR_RED << dead <<  ANSI_COLOR_RESET
+	          << fixed << setprecision(2) << "\naverage wait time: " << average_wait_time / number_of_patients << '\n';
 }
 
 int main()
 {
 	int beds;
-	std::cout << "enter number of beds --> ";
-	std::cin >> beds;
+	cout << "enter number of beds --> ";
+	cin >> beds;
 	int number_of_patients;
-	std::cout << "enter number of patients --> ";
-	std::cin >> number_of_patients;
+	cout << "enter number of patients --> ";
+	cin >> number_of_patients;
 	patient patients[number_of_patients];
-	std::cout << "enter patients' information: <number> <arrival> <hospitalization> <left>\n";
+	cout << "enter patients' information:" << ANSI_COLOR_YELLOW " <number> <arrival> <hospitalization> <left>\n" ANSI_COLOR_RESET;
 	// storing patients in an array
 	for (int i = 0; i < number_of_patients; ++i)
 	{
-		std::cin >> temp.number >> temp.arrival >> temp.hospitalization >> temp.left;
+		cin >> temp.number >> temp.arrival >> temp.hospitalization >> temp.left;
 		patients[i] = temp;
 	}
-	std::queue<patient> patients_in_queue = FCFS(patients, number_of_patients);
-	std::cout << "\nFCFS scenario:\n";
+	queue<patient> patients_in_queue = FCFS(patients, number_of_patients);
+	cout << ANSI_COLOR_YELLOW "\nFCFS scenario:\n" ANSI_COLOR_RESET;
 	hospitalize(patients_in_queue, beds);
-	std::cout << "---------------------------------------------\n";
-	std::cout << "SJF scenario:\n";
+	cout << ANSI_COLOR_MAGENTA "---------------------------------------------\n" ANSI_COLOR_RESET;
+	cout << ANSI_COLOR_YELLOW "SJF scenario:\n" ANSI_COLOR_RESET;
 	patients_in_queue = SJF(patients, number_of_patients, beds);
 	hospitalize(patients_in_queue, beds);
-	std::cout << "---------------------------------------------\n";
-	std::cout << "priority scheduling scenario:\n";
+	cout << ANSI_COLOR_MAGENTA "---------------------------------------------\n" ANSI_COLOR_RESET;
+	cout << ANSI_COLOR_YELLOW "priority scheduling scenario:\n" ANSI_COLOR_RESET;
 	patients_in_queue = PS(patients, number_of_patients, beds);
 	hospitalize(patients_in_queue, beds);
+	
 	return EXIT_SUCCESS;
 }
