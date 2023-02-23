@@ -43,6 +43,7 @@ std::queue<patient> SJF(patient* const patients, const int& number_of_patients, 
 	{
 		beds[i] = 0;
 	}
+	// checking if patients get served as soon as they arrive
 	for (int i = 0; i < number_of_patients; ++i)
 	{
 		for (int j = 0; j < number_of_beds; ++j)
@@ -60,9 +61,11 @@ std::queue<patient> SJF(patient* const patients, const int& number_of_patients, 
 		swapped = false;
 		for (int j = 0; j < number_of_patients - i - 1; ++j)
 		{
-			if ((patients[j].arrival == patients[j + 1].arrival || (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time))
-			   && patients[j].hospitalization > patients[j + 1].hospitalization
-			   && !(patients[j].arrival != patients[j + 1].arrival && patients[j].served_at_arrival))
+			
+			// lower priority patient was served at
+			if (!(patients[j].arrival != patients[j + 1].arrival && patients[j].served_at_arrival)
+			   && (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time) // two patients are waiting for an empty bed
+			   && patients[j].hospitalization > patients[j + 1].hospitalization) // main condition
 			{
 				// swapping process
 				temp = patients[j];
@@ -110,10 +113,9 @@ std::queue<patient> PS(patient* const patients, const int& number_of_patients, c
 		swapped = false;
 		for (int j = 0; j < number_of_patients - i - 1; ++j)
 		{
-			// swapping condition changes compared to SJF
-			if ((patients[j].arrival == patients[j + 1].arrival || (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time))
-			   && patients[j].left > patients[j + 1].left
-			   && !(patients[j].arrival != patients[j + 1].arrival && patients[j].served_at_arrival))
+			if (!(patients[j].arrival != patients[j + 1].arrival && patients[j].served_at_arrival)
+			   && (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time)
+			   && patients[j].left > patients[j + 1].left) // main swapping condition changes compared to SJF
 			{
 				temp = patients[j];
 				patients[j] = patients[j + 1];
