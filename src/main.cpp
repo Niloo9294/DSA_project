@@ -15,7 +15,7 @@ using namespace std;
 struct patient
 {
 	int number;
-	int arrival, hospitalization, left, serve_time; // times - in minutes
+	int arrival, hospitalization, left; // times - in minutes
 	bool served_at_arrival = false; // turns to true if patient gets a bed as soon as they arrive
 	bool alive = true; // true until patient dies
 } temp;
