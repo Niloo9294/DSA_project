@@ -15,7 +15,7 @@ using namespace std;
 struct patient
 {
 	int number;
-	int arrival, hospitalization, left; // times - in minutes
+	int arrival, hospitalization, left, wait_time; // times - in minutes
 	bool served_at_arrival = false; // turns to true if patient gets a bed as soon as they arrive
 	bool alive = true; // true until patient dies
 } temp;
@@ -43,8 +43,6 @@ queue<patient> FCFS(patient* const patients, const int& number_of_patients)
 // shortest job first (SJF) scenario
 queue<patient> SJF(patient* const patients, const int& number_of_patients, const int& number_of_beds)
 {
-	// stores last patient's hospitalization duration
-	int hos_time;
 	// true if two elements were swapped (for better performance)
 	bool swapped = true;
 	int beds[number_of_beds];
@@ -52,27 +50,35 @@ queue<patient> SJF(patient* const patients, const int& number_of_patients, const
 	{
 		beds[i] = 0;
 	}
+	int closest_bed_index;
 	// checking if patients get served as soon as they arrive
 	for (int i = 0; i < number_of_patients; ++i)
 	{
+		closest_bed_index = 0;
 		for (int j = 0; j < number_of_beds; ++j)
+		{
 			if (beds[j] <= patients[i].arrival)
 			{
 				beds[j] += patients[i].hospitalization;
 				patients[i].served_at_arrival = true;
 				break;
 			}
+			else if (beds[closest_bed_index] > beds[j])
+				closest_bed_index = j;
+		}
+		if (!patients[i].served_at_arrival)
+			patients[i].wait_time = beds[closest_bed_index] - patients[i].arrival;
 	}
+	int prev_patient_hos_duration;
 	// bubble sort
 	for (int i = 0; i < number_of_patients - 1 && swapped; ++i)
 	{
-		hos_time = 0;
+		prev_patient_hos_duration = 0;
 		swapped = false;
 		for (int j = 0; j < number_of_patients - i - 1; ++j)
 		{
-			// lower priority patient was served first because they arrived first and there were beds available
-			if (!(patients[j].arrival != patients[j + 1].arrival && patients[j].served_at_arrival)
-			   && (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time) // two patients are waiting for an empty bed
+			// lower priority patient was served first because they arrived sooner and there were beds available
+			if ((patients[j].arrival == patients[j + 1].arrival || (!patients[j].served_at_arrival && patients[j].arrival <= prev_patient_hos_duration && patients[j + 1].arrival <= prev_patient_hos_duration))
 			   && patients[j].hospitalization > patients[j + 1].hospitalization) // main condition
 			{
 				// swapping process
@@ -81,8 +87,7 @@ queue<patient> SJF(patient* const patients, const int& number_of_patients, const
 				patients[j + 1] = temp;
 				swapped = true;
 			}
-			// updating hos_time
-			hos_time = patients[j].arrival + patients[j].hospitalization;
+			prev_patient_hos_duration = patients[j].arrival + patients[j].wait_time + patients[j].hospitalization;
 		}
 	}
 	queue<patient> patients_in_queue;
@@ -98,31 +103,38 @@ queue<patient> SJF(patient* const patients, const int& number_of_patients, const
 // priority scheduling (PS) scenario
 queue<patient> PS(patient* const patients, const int& number_of_patients, const int& number_of_beds)
 {
-	int hos_time;
 	bool swapped = true;
 	int beds[number_of_beds];
 	for (int i = 0; i < number_of_beds; ++i)
 	{
 		beds[i] = 0;
 	}
+	int closest_bed_index;
 	for (int i = 0; i < number_of_patients; ++i)
 	{
+		closest_bed_index = 0;
 		for (int j = 0; j < number_of_beds; ++j)
+		{
 			if (beds[j] <= patients[i].arrival)
 			{
 				beds[j] += patients[i].hospitalization;
 				patients[i].served_at_arrival = true;
 				break;
 			}
+			else if (beds[closest_bed_index] > beds[j])
+				closest_bed_index = j;
+		}
+		if (!patients[i].served_at_arrival)
+			patients[i].wait_time = beds[closest_bed_index] - patients[i].arrival;
 	}
+	int prev_patient_hos_duration;
 	for (int i = 0; i < number_of_patients - 1 && swapped; ++i)
 	{
-		hos_time = 0;
+		prev_patient_hos_duration = 0;
 		swapped = false;
 		for (int j = 0; j < number_of_patients - i - 1; ++j)
 		{
-			if (!(patients[j].arrival != patients[j + 1].arrival && patients[j].served_at_arrival)
-			   && (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time)
+			if ((patients[j].arrival == patients[j + 1].arrival || (!patients[j].served_at_arrival && patients[j].arrival <= prev_patient_hos_duration && patients[j + 1].arrival <= prev_patient_hos_duration))
 			   && patients[j].left > patients[j + 1].left) // main swapping condition changes compared to SJF
 			{
 				temp = patients[j];
@@ -130,7 +142,7 @@ queue<patient> PS(patient* const patients, const int& number_of_patients, const 
 				patients[j + 1] = temp;
 				swapped = true;
 			}
-			hos_time = patients[j].arrival + patients[j].hospitalization;
+			prev_patient_hos_duration = patients[j].arrival + patients[j].wait_time + patients[j].hospitalization;
 		}
 	}
 	queue<patient> patients_in_queue;
