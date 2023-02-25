@@ -70,7 +70,7 @@ queue<patient> SJF(patient* const patients, const int& number_of_patients, const
 		swapped = false;
 		for (int j = 0; j < number_of_patients - i - 1; ++j)
 		{
-			// lower priority patient was served at
+			// lower priority patient was served first because they arrived first and there were beds available
 			if (!(patients[j].arrival != patients[j + 1].arrival && patients[j].served_at_arrival)
 			   && (patients[j].arrival <= hos_time && patients[j + 1].arrival <= hos_time) // two patients are waiting for an empty bed
 			   && patients[j].hospitalization > patients[j + 1].hospitalization) // main condition
