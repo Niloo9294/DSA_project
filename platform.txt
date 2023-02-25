@@ -1,1 +1,1 @@
-Macos
+Darwin-x64
