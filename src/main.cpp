@@ -45,11 +45,13 @@ queue<patient> SJF(patient* const patients, const int& number_of_patients, const
 {
 	// true if two elements were swapped (for better performance)
 	bool swapped = true;
+	// initializing beds
 	int beds[number_of_beds];
 	for (int i = 0; i < number_of_beds; ++i)
 	{
 		beds[i] = 0;
 	}
+	// index of the bed that will be available the soonest
 	int closest_bed_index;
 	// checking if patients get served as soon as they arrive
 	for (int i = 0; i < number_of_patients; ++i)
@@ -57,18 +59,25 @@ queue<patient> SJF(patient* const patients, const int& number_of_patients, const
 		closest_bed_index = 0;
 		for (int j = 0; j < number_of_beds; ++j)
 		{
+			// a bed was occupied by current patient at arrival
 			if (beds[j] <= patients[i].arrival)
 			{
 				beds[j] += patients[i].hospitalization;
 				patients[i].served_at_arrival = true;
 				break;
 			}
+			// a closer bed was found
 			else if (beds[closest_bed_index] > beds[j])
 				closest_bed_index = j;
 		}
+		// current patient had to wait for a bed to be available again
 		if (!patients[i].served_at_arrival)
+		{
 			patients[i].wait_time = beds[closest_bed_index] - patients[i].arrival;
+			beds[closest_bed_index] += patients[i].wait_time + patients[i].hospitalization;
+		}
 	}
+	// stores last patient's hospitalization duration
 	int prev_patient_hos_duration;
 	// bubble sort
 	for (int i = 0; i < number_of_patients - 1 && swapped; ++i)
@@ -77,7 +86,6 @@ queue<patient> SJF(patient* const patients, const int& number_of_patients, const
 		swapped = false;
 		for (int j = 0; j < number_of_patients - i - 1; ++j)
 		{
-			// lower priority patient was served first because they arrived sooner and there were beds available
 			if ((patients[j].arrival == patients[j + 1].arrival || (!patients[j].served_at_arrival && patients[j].arrival <= prev_patient_hos_duration && patients[j + 1].arrival <= prev_patient_hos_duration))
 			   && patients[j].hospitalization > patients[j + 1].hospitalization) // main condition
 			{
@@ -96,7 +104,6 @@ queue<patient> SJF(patient* const patients, const int& number_of_patients, const
 		patients_in_queue.push(patients[i]);
 	}
 	return patients_in_queue;
-
 }
 // end of SJF scenario
 
@@ -125,7 +132,10 @@ queue<patient> PS(patient* const patients, const int& number_of_patients, const 
 				closest_bed_index = j;
 		}
 		if (!patients[i].served_at_arrival)
+		{
 			patients[i].wait_time = beds[closest_bed_index] - patients[i].arrival;
+			beds[closest_bed_index] += patients[i].wait_time + patients[i].hospitalization;
+		}
 	}
 	int prev_patient_hos_duration;
 	for (int i = 0; i < number_of_patients - 1 && swapped; ++i)
@@ -151,7 +161,6 @@ queue<patient> PS(patient* const patients, const int& number_of_patients, const 
 		patients_in_queue.push(patients[i]);
 	}
 	return patients_in_queue;
-
 }
 // end of PS scenario
 
