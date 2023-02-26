@@ -199,7 +199,7 @@ void hospitalize(queue<patient> patients, const int& number_of_beds)
 					cout << ANSI_COLOR_BLUE "patient " << temp.number << " entered bed " << i + 1 << " at " << time
 					          << " and left at " << time + temp.hospitalization << '\n' << ANSI_COLOR_RESET;
 					// updating bed's availability time
-					beds[i] = beds[i] += temp.hospitalization;
+					beds[i] += temp.hospitalization;
 					served = true;
 					// live patient increase
 					++alive;
